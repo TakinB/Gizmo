@@ -8,7 +8,7 @@ Servo myservo;
 
 // variable to store the servo position
 int pos = 0;    
-
+int motor_dir_counter = 0;
 
 /** BASIC CONFIGURATION  **/
 
@@ -21,7 +21,7 @@ int pos = 0;
 
 //Confirmed microphone low value, and max value
 #define MIC_LOW 0.0
-#define MIC_HIGH 500.0
+#define MIC_HIGH 400.0
 
 /** Other macros */
 //How many previous sensor values effects the operating average?
@@ -94,13 +94,31 @@ struct color {
 struct time_keeping high;
 struct color Color; 
 
+//DC Motor 1
+#define ENABLE1 5
+#define DIRA1 3
+#define DIRB1 4
+
+//DC Motor 2
+#define ENABLE2 10
+#define DIRA2 8
+#define DIRB2 9
+
 void setup() {
+  pinMode(ENABLE1,OUTPUT);
+  pinMode(DIRA1,OUTPUT);
+  pinMode(DIRB1,OUTPUT);
+
+  pinMode(ENABLE2,OUTPUT);
+  pinMode(DIRA2,OUTPUT);
+  pinMode(DIRB2,OUTPUT);
+  
   Serial.begin(9600);
   myservo.attach(9); 
   //Set all lights to make sure all are working as expected
   FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
   for (int i = 0; i < NUM_LEDS; i++) 
-    leds[i] = CRGB(0, 0, 255);
+    leds[i] = CRGB(255, 0, 0);
   FastLED.show(); 
   delay(1000);  
 
@@ -169,13 +187,14 @@ void visualize_music() {
   //Actual sensor value
   sensor_value = analogRead(ANALOG_READ);
 
-  int servo_mapped = map(sensor_value,MIC_LOW,MIC_HIGH,10,60);
-  
+  int motor_mapped = map(sensor_value,0,MIC_HIGH,0,255);
+  int sleep_time_mapped = map(sensor_value,0,MIC_HIGH,0,1000);
+    
     //Serial.print("**** Sensor value is: ****" );
   
   Serial.println(sensor_value);
   Serial.println("-----------");
-  Serial.println(servo_mapped);
+  Serial.println(motor_mapped);
   
   //If 0, discard immediately. Probably not right and save CPU.
   if (sensor_value == 0)
@@ -253,12 +272,39 @@ void visualize_music() {
       leds[i] = CRGB(leds[i].r/fade_scale, leds[i].g/fade_scale, leds[i].b/fade_scale);
     }
   FastLED.show(); 
-  //update map value if you changed this factor
-  myservo.write(sensor_value*10); 
+
+  if ((motor_dir_counter % 2) == 0) {
+    //update map value if you changed this factor
+    digitalWrite(ENABLE1,motor_mapped); //enable on
+    digitalWrite(ENABLE2,motor_mapped); //enable on
+    digitalWrite(DIRA1,HIGH); //one way
+    digitalWrite(DIRB1,LOW);//myservo.write(motor_mapped); 
+    
+    digitalWrite(DIRA2,HIGH); //one way
+    digitalWrite(DIRB2,LOW);
+    Serial.println("Direction A");
+    motor_dir_counter = motor_dir_counter + 1;
+    delay (sleep_time_mapped);
+    Serial.println(sleep_time_mapped);
+   }else{
+    
+    //update map value if you changed this factor
+    digitalWrite(ENABLE1,motor_mapped); //enable on
+    digitalWrite(DIRA1,LOW); //one way
+    digitalWrite(DIRB1,HIGH);//myservo.write(motor_mapped);
+
+    digitalWrite(DIRA2,LOW); //one way
+    digitalWrite(DIRB2,HIGH);
+    
+    Serial.println("Direction B");
+    Serial.println(sleep_time_mapped);
+    motor_dir_counter = motor_dir_counter + 1;
+        delay (sleep_time_mapped);
+  }
 }
 //Compute average of a int array, given the starting pointer and the length
 int compute_average(int *avgs, int len) {
-  int sum = 0;
+  int sum = 0; 
   for (int i = 0; i < len; i++)
     sum += avgs[i];
 
