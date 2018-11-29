@@ -3,7 +3,7 @@
  * and: Bahareh Saboktakin
  * Royal College of Art
  * SparkFun Electronics
- * date: 2/7/16 adn 27/11/18
+ * date: 2/7/16 and 27/11/18
  * license: Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0)
  * Do whatever you'd like with this code, use it for any purpose.
  * Please attribute and keep this license.
@@ -18,8 +18,8 @@
 #include <Servo.h>
 
 //Constants (change these as necessary)
-#define LED_PIN   6  //Pin for the pixel strand. Can be analog or digital.
-#define LED_TOTAL 30  //Change this to the number of LEDs in your strand.
+#define LED_PIN    7 //Pin for the pixel strand. Can be analog or digital.
+#define LED_TOTAL 20  //Change this to the number of LEDs in your strand.
 #define LED_HALF  LED_TOTAL/2
 #define VISUALS   6   //Change this accordingly if you add/remove a visual in the switch-case in Visualize()
 
@@ -43,7 +43,7 @@
 //  These values either need to be remembered from the last pass of loop() or
 //  need to be accessed by several functions in one pass, so they need to be global.
 
-Adafruit_NeoPixel strand = Adafruit_NeoPixel(LED_TOTAL, LED_PIN, NEO_GRB + NEO_KHZ800);  //LED strand objetcs
+Adafruit_NeoPixel strand = Adafruit_NeoPixel(LED_TOTAL, LED_PIN, NEO_GRB + NEO_KHZ800);  //LED strand objects
 
 uint16_t gradient = 0; //Used to iterate and loop through each color palette gradually
 
@@ -60,7 +60,7 @@ uint8_t visual = 0;   //Holds the current visual being displayed.
 uint8_t volume = 0;   //Holds the volume level read from the sound detector.
 uint8_t last = 0;     //Holds the value of volume from the previous loop() pass.
 
-float maxVol = 300;    //Holds the largest volume recorded thus far to proportionally adjust the visual's responsiveness.
+float maxVol = 200;    //Holds the largest volume recorded thus far to proportionally adjust the visual's responsiveness.
 float knob = 1023.0;  //Holds the percentage of how twisted the trimpot is. Used for adjusting the max brightness.
 float avgBump = 0;    //Holds the "average" volume-change to trigger a "bump."
 float avgVol = 0;     //Holds the "average" volume-level to proportionally adjust the visual experience.
@@ -104,6 +104,8 @@ int motor_dir_counter = 0;
 
 void setup() {    //Like it's named, this gets ran before any other function.
 
+  //pinMode(A0,INPUT_PULLUP);
+
   pinMode(ENABLE1,OUTPUT);
   pinMode(DIRA1,OUTPUT);
   pinMode(DIRB1,OUTPUT);
@@ -128,8 +130,9 @@ void setup() {    //Like it's named, this gets ran before any other function.
 void loop() {  //This is where the magic happens. This loop produces each frame of the visual.
 
   volume = analogRead(AUDIO_PIN);       //Record the volume level from the sound detector
+  //volume= random(900, 150); //debuging without mic 
   knob = analogRead(KNOB_PIN) / 1023.0; //Record how far the trimpot is twisted
-
+// if (!  digitalRead(A0)){ // If switch is ON go ahead with LED lighting and pwm for controling motor
   //Sets a threshold for volume.
   //  In practice I've found noise can get up to 15, so if it's lower, the visual thinks it's silent.
   //  Also if the volume is less than average volume / 2 (essentially an average with 0), it's considered silent.
@@ -172,6 +175,12 @@ void loop() {  //This is where the magic happens. This loop produces each frame 
     timeBump = millis() / 1000.0;
   }
 
+  Serial.println("max volume");
+  Serial.println(maxVol);
+
+  Serial.println("Mic value");
+  Serial.println(volume);
+  
   Visualize();   //Calls the appropriate visualization to be displayed with the globals as they are.
 
   ControlMotor();  //Controls directions of the DC motor based on whether we had a bump in the volume.
@@ -181,6 +190,11 @@ void loop() {  //This is where the magic happens. This loop produces each frame 
   last = volume; //Records current volume for next pass
 
   delay(30);     //Paces visuals so they aren't too fast to be enjoyable
+//}
+  //else{ // Do this if the cassette player stop push button is pressed (switch off)
+    //   digitalWrite(ENABLE1,0); //enable on
+      // digitalWrite(ENABLE2,0); //enable on
+    //}
 }
 //////////</Standard Functions>
 
@@ -846,25 +860,29 @@ uint32_t USA(unsigned int i) {
 
 //////////</Palette Functions>
 
-/////////</Motor Control Functions>
+/////////<Motor Control Functions>
 
 void ControlMotor(){
+  //int motor_mapped = map(volume,0,maxVol,0,50);
+  //int sleep_time_mapped = map(volume,0,maxVol,0,maxDirTime);
+
   int motor_mapped = map(volume,0,maxVol,0,255);
   int sleep_time_mapped = map(volume,0,maxVol,0,maxDirTime);
   
   if ((motor_dir_counter % 2) == 0) {
     //update map value if you changed this factor
     digitalWrite(ENABLE1,motor_mapped); //enable on
-    digitalWrite(ENABLE2,motor_mapped); //enable on
     digitalWrite(DIRA1,HIGH); //one way
     digitalWrite(DIRB1,LOW);//myservo.write(motor_mapped); 
-    
+
+    digitalWrite(ENABLE2,motor_mapped); //enable on
     digitalWrite(DIRA2,HIGH); //one way
     digitalWrite(DIRB2,LOW);
     Serial.println("Direction A");
     motor_dir_counter = motor_dir_counter + 1;
     delay (sleep_time_mapped);
-    Serial.println(sleep_time_mapped);
+    //Serial.println(sleep_time_mapped);
+    Serial.println(volume);
    }else{
     
     //update map value if you changed this factor
@@ -872,12 +890,15 @@ void ControlMotor(){
     digitalWrite(DIRA1,LOW); //one way
     digitalWrite(DIRB1,HIGH);//myservo.write(motor_mapped);
 
+    digitalWrite(ENABLE2,motor_mapped); //enable on
     digitalWrite(DIRA2,LOW); //one way
     digitalWrite(DIRB2,HIGH);
     
     Serial.println("Direction B");
-    Serial.println(sleep_time_mapped);
+    //Serial.println(sleep_time_mapped);
     motor_dir_counter = motor_dir_counter + 1;
-        delay (sleep_time_mapped);
+    delay (sleep_time_mapped);
+        Serial.println(volume);
   }
   }
+ /////////</Motor Control Functions>
