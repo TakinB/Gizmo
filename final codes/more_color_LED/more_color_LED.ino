@@ -15,7 +15,6 @@
 #include <avr/power.h>   //Includes the library for power reduction registers if your chip supports them. 
 #endif                   //More info: http://www.nongnu.org/avr-libc/user-manual/group__avr__power.htlm
 
-#include <Servo.h>
 
 //Constants (change these as necessary)
 #define LED_PIN    7 //Pin for the pixel strand. Can be analog or digital.
@@ -25,9 +24,6 @@
 
 #define AUDIO_PIN A0  //Pin for the envelope of the sound detector
 #define KNOB_PIN  A1  //Pin for the trimpot 10K
-#define BUTTON_1  6   //Button 1 cycles color palettes
-#define BUTTON_2  5   //Button 2 cycles visualization modes
-#define BUTTON_3  4   //Button 3 toggles shuffle mode (automated changing of color and visual)
 
 //DC Motor 1
 #define ENABLE1 5
@@ -53,6 +49,7 @@ uint16_t gradient = 0; //Used to iterate and loop through each color palette gra
 //  keep "gradient" from overflowing, the color functions themselves can take any positive value. For example, the
 //  largest value Rainbow() takes before looping is 1529, so "gradient" should reset after 1529, as listed.
 //     Make sure you add/remove values accordingly if you add/remove a color function in the switch-case in ColorPalette().
+
 uint16_t thresholds[] = {1529, 1019, 764, 764, 764, 1274};
 
 uint8_t palette = 0;  //Holds the current color palette.
@@ -104,7 +101,7 @@ int motor_dir_counter = 0;
 
 void setup() {    //Like it's named, this gets ran before any other function.
 
-  //pinMode(A0,INPUT_PULLUP);
+  //pinMode(A0,INPUT_PULLUP); //added initially for creating a switch from cassette player push buttons.
 
   pinMode(ENABLE1,OUTPUT);
   pinMode(DIRA1,OUTPUT);
@@ -130,9 +127,10 @@ void setup() {    //Like it's named, this gets ran before any other function.
 void loop() {  //This is where the magic happens. This loop produces each frame of the visual.
 
   volume = analogRead(AUDIO_PIN);       //Record the volume level from the sound detector
-  //volume= random(900, 150); //debuging without mic 
   knob = analogRead(KNOB_PIN) / 1023.0; //Record how far the trimpot is twisted
-// if (!  digitalRead(A0)){ // If switch is ON go ahead with LED lighting and pwm for controling motor
+  
+  // if (!  digitalRead(A0)){ // If switch is ON (cassette player play button is pressed) go ahead with LED lighting and pwm for controling motor
+  
   //Sets a threshold for volume.
   //  In practice I've found noise can get up to 15, so if it's lower, the visual thinks it's silent.
   //  Also if the volume is less than average volume / 2 (essentially an average with 0), it's considered silent.
@@ -148,8 +146,6 @@ void loop() {  //This is where the magic happens. This loop produces each frame 
   CyclePalette();  //Changes palette for shuffle mode or button press.
 
   CycleVisual();   //Changes visualization for shuffle mode or button press.
-  
- // ToggleShuffle(); //Toggles shuffle mode. Delete this if you didn't use buttons.
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //This is where "gradient" is modulated to prevent overflow.
@@ -175,6 +171,7 @@ void loop() {  //This is where the magic happens. This loop produces each frame 
     timeBump = millis() / 1000.0;
   }
 
+  //Debugging serial prints
   Serial.println("max volume");
   Serial.println(maxVol);
 
@@ -618,27 +615,6 @@ void Cycle() {
 
 void CyclePalette() {
 
-  //IMPORTANT: Delete this whole if-block if you didn't use buttons//////////////////////////////////
-
-  //If a button is pushed, it sends a "false" reading
-  /*if (!digitalRead(BUTTON_1)) {
-
-    palette++;     //This is this button's purpose, to change the color palette.
-
-    //If palette is larger than the population of thresholds[], start back at 0
-    //  This is why it's important you add a threshold to the array if you add a
-    //  palette, or the program will cylce back to Rainbow() before reaching it.
-    if (palette >= sizeof(thresholds) / 2) palette = 0;
-
-    gradient %= thresholds[palette]; //Modulate gradient to prevent any overflow that may occur.
-
-    //The button is close to the microphone on my setup, so the sound of pushing it is
-    //  relatively loud to the sound detector. This causes the visual to think a loud noise
-    //  happened, so the delay simply allows the sound of the button to pass unabated.
-    delay(350);
-
-    maxVol = avgVol;  //Set max volume to average for a fresh experience.
-  }*/
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
   //If shuffle mode is on, and it's been 30 seconds since the last shuffle, and then a modulo
@@ -656,32 +632,6 @@ void CyclePalette() {
 
 
 void CycleVisual() {
-
-  //IMPORTANT: Delete this whole if-block if you didn't use buttons//////////////////////////////////
- /* if (!digitalRead(BUTTON_2)) {
-
-    visual++;     //The purpose of this button: change the visual mode
-
-    gradient = 0; //Prevent overflow
-
-    //Resets "visual" if there are no more visuals to cycle through.
-    if (visual > VISUALS) visual = 0;
-    //This is why you should change "VISUALS" if you add a visual, or the program loop over it.
-
-    //Resets the positions of all dots to nonexistent (-2) if you cycle to the Traffic() visual.
-    if (visual == 1) memset(pos, -2, sizeof(pos));
-
-    //Gives Snake() and PaletteDance() visuals a random starting point if cycled to.
-    if (visual == 2 || visual == 3) {
-      randomSeed(analogRead(0));
-      dotPos = random(strand.numPixels());
-    }
-
-    //Like before, this delay is to prevent a button press from affecting "maxVol."
-    delay(350);
-
-    maxVol = avgVol; //Set max volume to average for a fresh experience
-  }*/
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -704,21 +654,6 @@ void CycleVisual() {
   }
 }
 
-
-//IMPORTANT: Delete this function  if you didn't use buttons./////////////////////////////////////////
-/*void ToggleShuffle() {
-  if (!digitalRead(BUTTON_3)) {
-
-    shuffle = !shuffle; //This button's purpose: toggle shuffle mode.
-
-    //This delay is to prevent the button from taking another reading while you're pressing it
-    delay(500);
-
-    //Reset these things for a fresh experience.
-    maxVol = avgVol;
-    avgBump = 0;
-  }
-}*/
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
