@@ -1,5 +1,7 @@
 # Deck Tape 
 
+![topView](https://github.com/TakinB/Gizmo/side view.jpg)
+
 Deck Tape is a tribute to cassette players. It's an audio visualizer that integrates sound, color, and touch. 
 An Arduino Uno board is used to control LED lights as well as the speed and direction of a DC motor based on the volume of the environment sounds and music.
 
@@ -13,7 +15,7 @@ When I look back, I remember every cassette tape that I owned and my emotions wh
 In order to recreate the physical interaction with a cassette player, push buttons in Deck Tape is made with the same metallic latches that cassette players use. In other words, when you press buttons, you'll hear the same nostalgic click of old cassette players.
 Also, users can change the patterns being shaped by the magnet by playing with the iron filings. In addition, LED colors and intensities change based on the historical volume of the song.
 
-
+![sideView](https://github.com/TakinB/Gizmo/top view.jpg)
 
 ## Getting Started
 **Hardware:**
