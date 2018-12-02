@@ -11,7 +11,7 @@ An Arduino Uno board is used to control LED lights as well as the speed and dire
 A magnet is mounted on top of each DC motor which creates patterns in iron filings on the box top surface.
 
 <p align="center">
-  <img src="https://github.com/TakinB/Gizmo/blob/master/flowchart.jpg?raw=true"/>
+  <img src="https://github.com/TakinB/Gizmo/blob/master/flowchart.png?raw=true"/>
 </p>
 
 **Why magnets?** 
@@ -53,7 +53,6 @@ Please refer to the schematics folder on how to wire up the board with motors, s
 
  - Bahareh Saboktakin, Royal College of Art, 27/11/2018
  - SparkFun Addressable RGB LED Sound and Music Visualizer Tutorial Arduino Code by Michael Bartlett date: 2/7/16 and 27/11/18 license: Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0)
-
 
 
 
