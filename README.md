@@ -29,6 +29,7 @@ In order to recreate the physical interaction with a cassette player, push butto
 Also, users can change the patterns being shaped by the magnet by playing with the iron filings. In addition, LED colors and intensities change based on the historical volume of the song.
 
 <div style="text-align:center"><img src ="https://github.com/TakinB/Gizmo/blob/master/top%20view.jpg" /></div>
+
 ## Getting Started
 **Hardware:**
 You will need the following in order to build the hardware:
@@ -54,11 +55,3 @@ Please refer to the schematics folder on how to wire up the board with motors, s
 
  - Bahareh Saboktakin, Royal College of Art, 27/11/2018
  - SparkFun Addressable RGB LED Sound and Music Visualizer Tutorial Arduino Code by Michael Bartlett date: 2/7/16 and 27/11/18 license: Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0)
-
-
-
-
-
-
-
-
