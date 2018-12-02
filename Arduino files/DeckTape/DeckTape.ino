@@ -113,11 +113,6 @@ void setup() {    //Like it's named, this gets ran before any other function.
   
   Serial.begin(9600); //Sets data rate for serial data transmission.
 
-  //Defines the buttons pins to be input.
-  pinMode(BUTTON_1, INPUT); pinMode(BUTTON_2, INPUT); pinMode(BUTTON_3, INPUT);
-
-  //Write a "HIGH" value to the button pins.
-  digitalWrite(BUTTON_1, HIGH); digitalWrite(BUTTON_2, HIGH); digitalWrite(BUTTON_3, HIGH);
 
   strand.begin(); //Initialize the LED strand object.
   strand.show();  //Show a blank strand, just to get the LED's ready for use.
